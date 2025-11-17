@@ -94,6 +94,7 @@
             background-color: #383a59;
             padding: 2px 6px;
             border-radius: 4px;
+            white-space: nowrap; /* Garante que o item e a descrição fiquem juntos */
         }
     </style>
 </head>
@@ -135,7 +136,7 @@
             </p>
         </div>
 
-        <!-- Referência de Propriedades Flexbox -->
+        <!-- Referência de Propriedades Flexbox ATUALIZADA -->
         <div class="text-left mb-8">
             <h3 class="text-2xl font-bold text-item-target mb-4 border-b border-item-target/50 pb-2">📚 Referência Rápida de Propriedades Flexbox</h3>
             
@@ -145,11 +146,56 @@
                     <h4 class="text-xl font-bold text-white mb-2">Propriedades do Contêiner (Pai)</h4>
                     <ul class="space-y-2 text-gray-300 text-sm">
                         <li><span class="prop-item">display: flex;</span>: Define o contexto flex.</li>
-                        <li><span class="prop-item">flex-direction</span>: Define a direção do Eixo Principal (row, column, row-reverse, column-reverse).</li>
-                        <li><span class="prop-item">flex-wrap</span>: Define se os itens devem quebrar a linha (nowrap, wrap, wrap-reverse).</li>
-                        <li><span class="prop-item">justify-content</span>: Alinha itens no Eixo Principal (center, flex-start, flex-end, space-between, space-around, space-evenly).</li>
-                        <li><span class="prop-item">align-items</span>: Alinha itens no Eixo Cruzado (center, flex-start, flex-end, stretch, baseline).</li>
-                        <li><span class="prop-item">align-content</span>: Alinha múltiplas linhas no Eixo Cruzado (center, flex-start, flex-end, space-between, space-around, stretch).</li>
+                        
+                        <!-- flex-direction -->
+                        <li class="font-bold text-yellow-300 mt-2">flex-direction:</li>
+                        <ul class="list-disc list-inside ml-4 space-y-1">
+                            <li><span class="prop-item">row</span>: Itens dispostos em linha (horizontal, da esquerda para a direita - padrão).</li>
+                            <li><span class="prop-item">column</span>: Itens dispostos em coluna (vertical, de cima para baixo).</li>
+                            <li><span class="prop-item">row-reverse</span>: Itens em linha, mas a ordem é invertida (da direita para a esquerda).</li>
+                            <li><span class="prop-item">column-reverse</span>: Itens em coluna, mas a ordem é invertida (de baixo para cima).</li>
+                        </ul>
+                        
+                        <!-- flex-wrap -->
+                        <li class="font-bold text-yellow-300 mt-2">flex-wrap:</li>
+                        <ul class="list-disc list-inside ml-4 space-y-1">
+                            <li><span class="prop-item">nowrap</span>: Mantém todos os itens em uma única linha (padrão).</li>
+                            <li><span class="prop-item">wrap</span>: Quebra os itens em várias linhas, se necessário (de cima para baixo).</li>
+                            <li><span class="prop-item">wrap-reverse</span>: Quebra os itens em várias linhas (de baixo para cima).</li>
+                        </ul>
+
+                        <!-- justify-content -->
+                        <li class="font-bold text-yellow-300 mt-2">justify-content: (Eixo Principal)</li>
+                        <ul class="list-disc list-inside ml-4 space-y-1">
+                            <li><span class="prop-item">flex-start</span>: Alinha itens no início do eixo (padrão).</li>
+                            <li><span class="prop-item">center</span>: Centraliza os itens no eixo.</li>
+                            <li><span class="prop-item">flex-end</span>: Alinha itens no final do eixo.</li>
+                            <li><span class="prop-item">space-between</span>: Distribui itens com espaço *somente* entre eles.</li>
+                            <li><span class="prop-item">space-around</span>: Distribui itens com espaço *ao redor* de cada item.</li>
+                            <li><span class="prop-item">space-evenly</span>: Distribui itens com espaço *igual* entre eles e as extremidades.</li>
+                        </ul>
+                        
+                        <!-- align-items -->
+                        <li class="font-bold text-yellow-300 mt-2">align-items: (Eixo Cruzado)</li>
+                        <ul class="list-disc list-inside ml-4 space-y-1">
+                            <li><span class="prop-item">flex-start</span>: Alinha itens no início do eixo cruzado (topo).</li>
+                            <li><span class="prop-item">center</span>: Centraliza itens no eixo cruzado (verticalmente).</li>
+                            <li><span class="prop-item">flex-end</span>: Alinha itens no final do eixo cruzado (base).</li>
+                            <li><span class="prop-item">stretch</span>: Estica os itens para preencher o contêiner (padrão).</li>
+                            <li><span class="prop-item">baseline</span>: Alinha itens com base em suas linhas de base de texto.</li>
+                        </ul>
+                        
+                        <!-- align-content -->
+                        <li class="font-bold text-yellow-300 mt-2">align-content: (Eixo Cruzado, requer wrap)</li>
+                        <ul class="list-disc list-inside ml-4 space-y-1">
+                            <li><span class="prop-item">center</span>: Centraliza as linhas de itens no eixo cruzado.</li>
+                            <li><span class="prop-item">space-between</span>: Espaço entre as linhas, extremidades fixas.</li>
+                            <li><span class="prop-item">stretch</span>: Linhas esticam para preencher o espaço (padrão).</li>
+                            <!-- Adicionando os valores restantes para completude -->
+                            <li><span class="prop-item">flex-start</span>: Agrupa as linhas no início.</li>
+                            <li><span class="prop-item">flex-end</span>: Agrupa as linhas no final.</li>
+                            <li><span class="prop-item">space-around</span>: Espaço igual ao redor de cada linha.</li>
+                        </ul>
                     </ul>
                 </div>
                 
@@ -157,11 +203,44 @@
                 <div>
                     <h4 class="text-xl font-bold text-white mb-2">Propriedades dos Itens (Filhos)</h4>
                     <ul class="space-y-2 text-gray-300 text-sm">
-                        <li><span class="prop-item">order</span>: Define a ordem visual dos itens (padrão é 0).</li>
-                        <li><span class="prop-item">flex-grow</span>: Define a capacidade de um item crescer para ocupar espaço extra (padrão é 0).</li>
-                        <li><span class="prop-item">flex-shrink</span>: Define a capacidade de um item encolher se necessário (padrão é 1).</li>
-                        <li><span class="prop-item">flex-basis</span>: Define o tamanho inicial de um item antes da distribuição de espaço (auto ou px/%).</li>
-                        <li><span class="prop-item">align-self</span>: Sobrescreve o <span class="prop-item">align-items</span> do contêiner para um item específico.</li>
+                        <!-- order -->
+                        <li class="font-bold text-purple-300 mt-2">order:</li>
+                        <ul class="list-disc list-inside ml-4 space-y-1">
+                            <li><span class="prop-item">0</span>: Ordem padrão.</li>
+                            <li><span class="prop-item">N</span>: Define a ordem visual (menor valor aparece primeiro).</li>
+                            <li><span class="prop-item">-1</span>: Posiciona o item no início.</li>
+                        </ul>
+
+                        <!-- flex-grow -->
+                        <li class="font-bold text-purple-300 mt-2">flex-grow:</li>
+                        <ul class="list-disc list-inside ml-4 space-y-1">
+                            <li><span class="prop-item">0</span>: Não permite que o item cresça (padrão).</li>
+                            <li><span class="prop-item">1+</span>: Permite ao item ocupar o espaço livre.</li>
+                        </ul>
+
+                        <!-- flex-shrink -->
+                        <li class="font-bold text-purple-300 mt-2">flex-shrink:</li>
+                        <ul class="list-disc list-inside ml-4 space-y-1">
+                            <li><span class="prop-item">1</span>: Permite ao item encolher (padrão).</li>
+                            <li><span class="prop-item">0</span>: Não permite que o item encolha.</li>
+                        </ul>
+                        
+                        <!-- flex-basis -->
+                        <li class="font-bold text-purple-300 mt-2">flex-basis:</li>
+                        <ul class="list-disc list-inside ml-4 space-y-1">
+                            <li><span class="prop-item">auto</span>: Tamanho baseado no conteúdo do item (padrão).</li>
+                            <li><span class="prop-item">200px / 25%</span>: Define o tamanho inicial do item (antes de grow/shrink).</li>
+                        </ul>
+
+                        <!-- align-self -->
+                        <li class="font-bold text-purple-300 mt-2">align-self: (Sobrescreve align-items)</li>
+                        <ul class="list-disc list-inside ml-4 space-y-1">
+                            <li><span class="prop-item">auto</span>: Herda `align-items` do contêiner.</li>
+                            <li><span class="prop-item">flex-start</span>: Alinha o item no topo.</li>
+                            <li><span class="prop-item">center</span>: Centraliza o item verticalmente.</li>
+                            <li><span class="prop-item">flex-end</span>: Alinha o item na base.</li>
+                            <li><span class="prop-item">stretch</span>: Estica o item.</li>
+                        </ul>
                     </ul>
                 </div>
             </div>
