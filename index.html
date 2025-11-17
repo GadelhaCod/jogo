@@ -175,11 +175,14 @@
     <!-- UI Principal do Jogo (Inicialmente Oculta) -->
     <div id="game-ui" class="bg-dungeon-card p-4 md:p-8 rounded-xl shadow-2xl hidden">
         
-        <!-- Área de Instrução e Status -->
-        <div class="mb-6 bg-dungeon-bg p-4 rounded-lg">
-            <h2 class="text-2xl font-semibold text-item-target mb-2">Nível <span id="levelDisplay">1</span> de 14</h2>
-            <p id="instructionText" class="text-gray-300"></p>
+        <!-- Área de Instrução e Status - AGORA COM PLACAR -->
+        <div class="mb-6 bg-dungeon-bg p-4 rounded-lg flex justify-between items-center">
+            <h2 class="text-2xl font-semibold text-item-target">Nível <span id="levelDisplay">1</span> de 14</h2>
+            <h2 class="text-2xl font-semibold text-yellow-400">Pontos: <span id="scoreDisplay">0</span></h2>
         </div>
+
+        <!-- NOVO: ELEMENTO PARA EXIBIR AS INSTRUÇÕES DO NÍVEL -->
+        <p id="instructionText" class="text-lg mb-4 p-3 bg-gray-700/50 rounded-lg"></p>
 
         <!-- Layout Flex (Objetivo e Jogo Lado a Lado no Desktop) -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -359,11 +362,13 @@
     ];
 
     let currentLevel = 0;
+    let score = 0; // Variável para rastrear a pontuação
 
     const gameContainer = document.getElementById('gameContainer');
     const goalContainer = document.getElementById('goalContainer');
     const levelDisplay = document.getElementById('levelDisplay');
-    const instructionText = document.getElementById('instructionText');
+    const scoreDisplay = document.getElementById('scoreDisplay'); // Novo Elemento
+    const instructionText = document.getElementById('instructionText'); // AGORA ESTÁ ENCONTRANDO O ELEMENTO
     const propTargetDisplay = document.getElementById('propTargetDisplay');
     const propNameElement = document.getElementById('propName');
     const targetTypeGoal = document.getElementById('targetTypeGoal');
@@ -371,13 +376,19 @@
     const applyButton = document.getElementById('applyButton');
     const resetButton = document.getElementById('resetButton');
     const feedbackText = document.getElementById('feedbackText');
-    const homeButton = document.getElementById('homeButton'); // Novo
+    const homeButton = document.getElementById('homeButton');
     
     // NOVAS REFERÊNCIAS
     const splashScreen = document.getElementById('splashScreen');
     const startButton = document.getElementById('startButton');
     const gameUI = document.getElementById('game-ui');
 
+    /**
+     * Atualiza o placar na tela.
+     */
+    function updateScoreDisplay() {
+        scoreDisplay.textContent = score;
+    }
 
     /**
      * Carrega o nível atual, atualizando o contêiner de Objetivo e o contêiner de Jogo.
@@ -395,6 +406,8 @@
 
         // 1. Atualiza a UI e Estilos de Contêiner Padrão
         levelDisplay.textContent = `${levelIndex + 1} de ${levels.length}`;
+        updateScoreDisplay(); // Garante que o placar é exibido
+        // CORREÇÃO: instructionText agora é garantido que existe
         instructionText.innerHTML = `<strong>${level.tip}</strong> ${level.instruction}`;
         propNameElement.textContent = level.prop;
         targetTypeGoal.textContent = isItemLevel ? 'Item' : 'Container';
@@ -543,6 +556,9 @@
         displayFeedback('🎉 Sucesso! Masmorra Resolvida!', 'text-item-target');
         gameContainer.classList.add('border-item-target');
         
+        score += 1; // Incrementa a pontuação
+        updateScoreDisplay(); // Atualiza o placar
+
         // Desabilita botões por um momento
         applyButton.disabled = true;
         resetButton.disabled = true;
@@ -564,7 +580,8 @@
         feedbackText.innerHTML = '';
         gameContainer.innerHTML = '<div class="flex items-center justify-center w-full h-full text-4xl text-item-target font-bold text-center p-8">PARABÉNS! VOCÊ DOMINOU O FLEXBOX E CONQUISTOU A DUNGEON!</div>';
         goalContainer.innerHTML = '';
-        instructionText.innerHTML = 'Você completou todos os 14 desafios do Flexbox Dungeon. Você está pronto(a) para construir layouts profissionais de forma fluida e responsiva!';
+        // Mensagem de conclusão atualizada para incluir a pontuação
+        instructionText.innerHTML = `Você completou todos os 14 desafios do Flexbox Dungeon com ${score} acertos! Você está pronto(a) para construir layouts profissionais de forma fluida e responsiva!`;
         levelDisplay.textContent = 'FINAL';
         applyButton.disabled = true;
         resetButton.disabled = true;
@@ -611,7 +628,7 @@
     applyButton.addEventListener('click', applyAndCheck);
     resetButton.addEventListener('click', resetLevel);
     startButton.addEventListener('click', initGame); 
-    homeButton.addEventListener('click', goToSplashScreen); // Novo listener
+    homeButton.addEventListener('click', goToSplashScreen); 
     
     // Inicia o jogo (mostra a tela inicial)
     // O jogo agora é iniciado pelo botão startButton
