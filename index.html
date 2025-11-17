@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flexbox Dungeon: O Desafio dos Eixos</title>
+    <!-- Carrega o Tailwind CSS para estilização rápida e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuração do Tailwind para usar a fonte Inter e cores customizadas -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'dungeon-bg': '#1e1e2d',
+                        'dungeon-card': '#27293d',
+                        'dungeon-accent': '#6272a4', // Cor suave para contêiner
+                        'item-hero': '#ff79c6', // Cor vibrante para os itens (Heróis)
+                        'item-target': '#50fa7b', // Cor de sucesso (Alvo)
+                        'item-target-highlight': '#8be9fd', // Destaque para item alvo (align-self, order)
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Estilos personalizados para o jogo */
+        body {
+            background-color: #1e1e2d; /* dungeon-bg */
+            color: white;
+            min-height: 100vh;
+        }
+
+        /* Estilo para o Contêiner do Jogo (A Masmorra) */
+        #gameContainer, #goalContainer {
+            min-height: 250px;
+            border: 3px solid #6272a4; /* dungeon-accent */
+            transition: all 0.5s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+
+        /* Estilo para os Itens Flex (Heróis) */
+        .flex-item {
+            width: 70px;
+            height: 70px;
+            background-color: #ff79c6; /* item-hero */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+            border-radius: 8px;
+            margin: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            transition: all 0.5s ease-in-out;
+        }
+
+        /* Estilo para o item alvo em níveis de Item */
+        .target-item {
+            background-color: #bd93f9; /* Roxo para destacar o item que recebe a propriedade */
+            color: #1e1e2d;
+            border: 2px solid #50fa7b;
+        }
+        
+        /* Estilo do botão customizado */
+        .game-button {
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        .game-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .game-button:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        
+        /* Estilo para a área de código */
+        #cssInput {
+            background-color: #383a59; /* Cor de fundo para editor de código */
+            color: #f8f8f2;
+            border: 2px solid #bd93f9;
+        }
+        
+        .prop-item {
+            font-family: monospace;
+            color: #8be9fd; /* Cor de código */
+            background-color: #383a59;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="font-sans">
+
+<div class="container mx-auto p-4 md:p-8">
+    <header class="text-center mb-8">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-2">
+            <span class="text-green-400">Flexbox</span> Dungeon 🏰
+        </h1>
+        <p class="text-dungeon-accent text-xl">O Desafio dos Eixos: Use CSS para posicionar os Heróis!</p>
+    </header>
+
+    <!-- Tela Inicial (Splash Screen) -->
+    <div id="splashScreen" class="bg-dungeon-card p-6 md:p-10 rounded-xl shadow-2xl text-center">
+        <h2 class="text-3xl md:text-4xl font-extrabold text-item-target mb-4">Bem-Vindo ao Flexbox Dungeon!</h2>
+        <p class="text-gray-300 text-lg mb-6">Esta masmorra é o lugar perfeito para dominar o **CSS Flexbox**, a ferramenta essencial para layouts modernos e responsivos.</p>
+
+        <!-- Seção de Como Jogar -->
+        <div class="text-left space-y-4 mb-8 bg-dungeon-bg p-6 rounded-lg border border-dungeon-accent">
+            <h3 class="text-xl font-bold text-yellow-400 border-b border-yellow-400/50 pb-2">Como Jogar:</h3>
+            
+            <p class="text-gray-200">
+                <strong class="text-item-hero">O Objetivo:</strong> Mover os Heróis (os itens coloridos) para a posição exata mostrada no Contêiner de **Objetivo** (à esquerda).
+            </p>
+            <p class="text-gray-200">
+                <strong class="text-item-hero">O Desafio:</strong> Você só pode usar a propriedade CSS correta (indicada) no campo de texto. Você digitará apenas o **valor** da propriedade (Ex: <span class="prop-item">center</span> ou <span class="prop-item">flex-end</span>).
+            </p>
+            <p class="text-gray-200">
+                <strong class="text-item-hero">Tipos de Nível:</strong>
+                <ul class="list-disc list-inside ml-4 mt-1 space-y-1">
+                    <li class="text-gray-300">
+                        <strong class="text-green-400">Container:</strong> Você aplica a propriedade (ex: `justify-content` ou `align-items`) ao elemento pai.
+                    </li>
+                    <li class="text-gray-300">
+                        <strong class="text-purple-400">Item:</strong> Você aplica a propriedade (ex: `order` ou `flex-grow`) a um Herói específico, que estará **Roxo**.
+                    </li>
+                </ul>
+            </p>
+        </div>
+
+        <!-- Referência de Propriedades Flexbox -->
+        <div class="text-left mb-8">
+            <h3 class="text-2xl font-bold text-item-target mb-4 border-b border-item-target/50 pb-2">📚 Referência Rápida de Propriedades Flexbox</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Propriedades do Contêiner -->
+                <div>
+                    <h4 class="text-xl font-bold text-white mb-2">Propriedades do Contêiner (Pai)</h4>
+                    <ul class="space-y-2 text-gray-300 text-sm">
+                        <li><span class="prop-item">display: flex;</span>: Define o contexto flex.</li>
+                        <li><span class="prop-item">flex-direction</span>: Define a direção do Eixo Principal (row, column, row-reverse, column-reverse).</li>
+                        <li><span class="prop-item">flex-wrap</span>: Define se os itens devem quebrar a linha (nowrap, wrap, wrap-reverse).</li>
+                        <li><span class="prop-item">justify-content</span>: Alinha itens no Eixo Principal (center, flex-start, flex-end, space-between, space-around, space-evenly).</li>
+                        <li><span class="prop-item">align-items</span>: Alinha itens no Eixo Cruzado (center, flex-start, flex-end, stretch, baseline).</li>
+                        <li><span class="prop-item">align-content</span>: Alinha múltiplas linhas no Eixo Cruzado (center, flex-start, flex-end, space-between, space-around, stretch).</li>
+                    </ul>
+                </div>
+                
+                <!-- Propriedades do Item -->
+                <div>
+                    <h4 class="text-xl font-bold text-white mb-2">Propriedades dos Itens (Filhos)</h4>
+                    <ul class="space-y-2 text-gray-300 text-sm">
+                        <li><span class="prop-item">order</span>: Define a ordem visual dos itens (padrão é 0).</li>
+                        <li><span class="prop-item">flex-grow</span>: Define a capacidade de um item crescer para ocupar espaço extra (padrão é 0).</li>
+                        <li><span class="prop-item">flex-shrink</span>: Define a capacidade de um item encolher se necessário (padrão é 1).</li>
+                        <li><span class="prop-item">flex-basis</span>: Define o tamanho inicial de um item antes da distribuição de espaço (auto ou px/%).</li>
+                        <li><span class="prop-item">align-self</span>: Sobrescreve o <span class="prop-item">align-items</span> do contêiner para um item específico.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <button id="startButton" class="game-button bg-green-500 hover:bg-green-600 text-dungeon-bg font-bold py-4 px-12 rounded-lg shadow-xl text-xl">
+            Começar A Aventura (Nível 1/14)
+        </button>
+    </div>
+
+    <!-- UI Principal do Jogo (Inicialmente Oculta) -->
+    <div id="game-ui" class="bg-dungeon-card p-4 md:p-8 rounded-xl shadow-2xl hidden">
+        
+        <!-- Área de Instrução e Status -->
+        <div class="mb-6 bg-dungeon-bg p-4 rounded-lg">
+            <h2 class="text-2xl font-semibold text-item-target mb-2">Nível <span id="levelDisplay">1</span> de 14</h2>
+            <p id="instructionText" class="text-gray-300"></p>
+        </div>
+
+        <!-- Layout Flex (Objetivo e Jogo Lado a Lado no Desktop) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- 1. Contêiner Objetivo (Target) -->
+            <div>
+                <h3 class="text-xl font-bold mb-3 text-white">🎯 Objetivo (<span id="targetTypeGoal">Container</span>)</h3>
+                <div id="goalContainer" class="rounded-lg flex flex-wrap bg-dungeon-bg relative overflow-hidden">
+                    <!-- Itens do Objetivo são clones, mas não interativos -->
+                    <div id="goalOverlay" class="absolute inset-0 flex items-center justify-center text-gray-500 text-3xl font-bold opacity-20 pointer-events-none">
+                        ALVO
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Contêiner do Jogo (A Masmorra) -->
+            <div>
+                <h3 class="text-xl font-bold mb-3 text-white">⚔️ Sua Masmorra (Edite o CSS)</h3>
+                <div id="gameContainer" class="rounded-lg flex flex-wrap bg-dungeon-bg relative">
+                    <!-- Itens Flexbox serão inseridos aqui via JS -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Área de Input do Jogador -->
+        <div class="mt-6">
+            <label for="cssInput" class="block text-lg font-bold mb-2 text-white">
+                Propriedade para <span id="propTargetDisplay">o Contêiner</span>: <span id="propName" class="text-yellow-400">justify-content</span>
+            </label>
+            <textarea id="cssInput" rows="1" class="w-full p-3 rounded-lg text-lg resize-none focus:outline-none focus:ring-4 focus:ring-purple-500" placeholder="Ex: center"></textarea>
+            <p id="feedbackText" class="mt-2 text-center text-lg font-semibold h-6"></p>
+        </div>
+
+        <!-- Botões de Ação -->
+        <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4 mt-6">
+            <button id="applyButton" class="game-button bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg">
+                Aplicar e Conferir
+            </button>
+            <button id="resetButton" class="game-button bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg">
+                Resetar Nível
+            </button>
+            <!-- NOVO: Botão Voltar ao Início -->
+            <button id="homeButton" class="game-button bg-dungeon-accent hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg">
+                Voltar ao Início
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Configurações do Firebase/Firestore não são necessárias para este jogo de lógica local.
+
+    // Definição dos níveis do jogo (Total de 14 Níveis)
+    const levels = [
+        // --- PROPRIEDADES DO CONTAINER: EIXO PRINCIPAL (justify-content) ---
+        {
+            prop: 'justify-content',
+            value: 'flex-start',
+            items: 3,
+            targetType: 'container',
+            instruction: 'Os 3 Heróis devem estar agrupados no INÍCIO (esquerda) do EIXO PRINCIPAL. Este é o valor padrão.',
+            tip: 'Use justify-content.',
+        },
+        {
+            prop: 'justify-content',
+            value: 'center',
+            items: 3,
+            targetType: 'container',
+            instruction: 'O portão principal. Use o Flexbox para centralizar os 3 Heróis no EIXO PRINCIPAL (horizontal).',
+            tip: 'Use justify-content.',
+        },
+        {
+            prop: 'justify-content',
+            value: 'flex-end',
+            items: 4,
+            targetType: 'container',
+            instruction: 'Fim do corredor. Mova os 4 Heróis para o FINAL (direita) do EIXO PRINCIPAL.',
+            tip: 'Use justify-content.',
+        },
+        {
+            prop: 'justify-content',
+            value: 'space-between',
+            items: 3,
+            targetType: 'container',
+            instruction: 'Os pilares. Mova os 3 Heróis para as EXTREMIDADES, com espaço SOMENTE entre eles.',
+            tip: 'Use justify-content.',
+        },
+        {
+            prop: 'justify-content',
+            value: 'space-around',
+            items: 4,
+            targetType: 'container',
+            instruction: 'O Grande Salão. Distribua os 4 Heróis com espaço IGUAL ao redor de CADA UM (incluindo as extremidades, mas as extremidades têm metade do espaço).',
+            tip: 'Use justify-content.',
+        },
+        {
+            prop: 'justify-content',
+            value: 'space-evenly',
+            items: 5,
+            targetType: 'container',
+            instruction: 'O Alinhamento Perfeito. Distribua os 5 Heróis com espaço IGUAL entre eles e as extremidades.',
+            tip: 'Use justify-content.',
+        },
+        
+        // --- PROPRIEDADES DO CONTAINER: EIXO CRUZADO (align-items) ---
+        {
+            prop: 'align-items',
+            value: 'flex-start',
+            items: 3,
+            targetType: 'container',
+            instruction: 'A sala baixa. Mova os 3 Heróis para o INÍCIO (topo) do EIXO CRUZADO. O Contêiner tem altura fixa!',
+            tip: 'Use align-items.',
+        },
+        {
+            prop: 'align-items',
+            value: 'center',
+            items: 5,
+            targetType: 'container',
+            instruction: 'O centro da sala. Centralize os 5 Heróis no EIXO CRUZADO (vertical).',
+            tip: 'Use align-items.',
+        },
+        {
+            prop: 'align-items',
+            value: 'flex-end',
+            items: 4,
+            targetType: 'container',
+            instruction: 'O fosso. Mova os 4 Heróis para o FINAL (base) do EIXO CRUZADO.',
+            tip: 'Use align-items.',
+        },
+
+        // --- PROPRIEDADES DO CONTAINER: FLEX-DIRECTION e FLEX-WRAP/ALIGN-CONTENT ---
+        {
+            prop: 'flex-direction',
+            value: 'column',
+            items: 2,
+            targetType: 'container',
+            instruction: 'A escada vertical. Altere a direção do Eixo Principal para VERTICAL (column) E mova os Heróis para o final (bottom) desse novo eixo.',
+            tip: 'Você precisará de duas propriedades: flex-direction E justify-content.',
+        },
+        {
+            prop: 'flex-wrap',
+            value: 'wrap',
+            items: 6,
+            targetType: 'container',
+            instruction: 'O Labirinto. Use a propriedade de quebra de linha para que os itens que NÃO COUBEREM na primeira linha passem para a próxima.',
+            tip: 'Use flex-wrap. (Os itens devem se quebrar em duas linhas no seu display)',
+        },
+        {
+            prop: 'align-content',
+            value: 'space-between',
+            items: 6, // 3 por linha, 2 linhas
+            targetType: 'container',
+            instruction: 'As plataformas. O wrap já está ativo. Use `align-content` para forçar as duas linhas de itens para as EXTREMIDADES (topo e base) do contêiner.',
+            tip: 'Use align-content.',
+        },
+        
+        // --- PROPRIEDADES DO ITEM ---
+        {
+            prop: 'order',
+            value: '5',
+            items: 4,
+            targetType: 'item',
+            targetItemIndex: 2, // Herói 2
+            instruction: 'A Reordenação. Use a propriedade `order` no Herói 2 para movê-lo para o FINAL da fila.',
+            tip: 'Você deve aplicar o valor `order: 5;` ao Herói 2 para que ele se mova para o final.',
+        },
+        {
+            prop: 'flex-grow',
+            value: '1',
+            items: 3,
+            targetType: 'item',
+            targetItemIndex: 3, // Herói 3
+            instruction: 'O Gigante. Use a propriedade `flex-grow` no Herói 3 para fazê-lo ocupar TODO o espaço restante do contêiner.',
+            tip: 'Você deve aplicar o valor `flex-grow: 1;` ao Herói 3.',
+        },
+    ];
+
+    let currentLevel = 0;
+
+    const gameContainer = document.getElementById('gameContainer');
+    const goalContainer = document.getElementById('goalContainer');
+    const levelDisplay = document.getElementById('levelDisplay');
+    const instructionText = document.getElementById('instructionText');
+    const propTargetDisplay = document.getElementById('propTargetDisplay');
+    const propNameElement = document.getElementById('propName');
+    const targetTypeGoal = document.getElementById('targetTypeGoal');
+    const cssInput = document.getElementById('cssInput');
+    const applyButton = document.getElementById('applyButton');
+    const resetButton = document.getElementById('resetButton');
+    const feedbackText = document.getElementById('feedbackText');
+    const homeButton = document.getElementById('homeButton'); // Novo
+    
+    // NOVAS REFERÊNCIAS
+    const splashScreen = document.getElementById('splashScreen');
+    const startButton = document.getElementById('startButton');
+    const gameUI = document.getElementById('game-ui');
+
+
+    /**
+     * Carrega o nível atual, atualizando o contêiner de Objetivo e o contêiner de Jogo.
+     * @param {number} levelIndex
+     */
+    function loadLevel(levelIndex) {
+        if (levelIndex >= levels.length) {
+            alertWin();
+            return;
+        }
+
+        const level = levels[levelIndex];
+        currentLevel = levelIndex;
+        const isItemLevel = level.targetType === 'item';
+
+        // 1. Atualiza a UI e Estilos de Contêiner Padrão
+        levelDisplay.textContent = `${levelIndex + 1} de ${levels.length}`;
+        instructionText.innerHTML = `<strong>${level.tip}</strong> ${level.instruction}`;
+        propNameElement.textContent = level.prop;
+        targetTypeGoal.textContent = isItemLevel ? 'Item' : 'Container';
+        propTargetDisplay.textContent = isItemLevel ? `o Herói ${level.targetItemIndex}` : 'o Contêiner';
+        
+        cssInput.value = '';
+        cssInput.rows = (level.prop === 'flex-direction' || level.prop === 'flex-wrap') ? 2 : 1;
+        feedbackText.textContent = '';
+        
+        // Reinicia e define altura do contêiner
+        const containerHeight = (level.prop === 'flex-direction' || level.prop === 'align-content' || level.prop === 'flex-wrap') ? '400px' : '250px';
+        gameContainer.style.height = containerHeight;
+        goalContainer.style.height = containerHeight;
+
+        // Limpa e reinicia estilos padrões do Contêiner de Jogo (A Masmorra)
+        gameContainer.innerHTML = '';
+        goalContainer.innerHTML = '';
+        gameContainer.style.flexDirection = 'row'; 
+        gameContainer.style.justifyContent = 'flex-start'; 
+        gameContainer.style.alignItems = isItemLevel ? 'flex-start' : 'stretch'; // Padrão flex-start para níveis de Item
+        gameContainer.style.flexWrap = 'nowrap';
+        gameContainer.style.alignContent = 'stretch';
+
+
+        // 2. Insere os Itens nos Contêineres
+        for (let i = 1; i <= level.items; i++) {
+            const isTargetItem = isItemLevel && i === level.targetItemIndex;
+            
+            // Cria um novo item para a Masmorra
+            const gameItem = document.createElement('div');
+            gameItem.className = `flex-item ${isTargetItem ? 'target-item' : ''}`;
+            gameItem.textContent = i;
+            // Zera estilos de item que podem ter sobrado de níveis anteriores
+            gameItem.style.order = 0;
+            gameItem.style.flexGrow = 0;
+            gameItem.style.alignSelf = 'auto';
+            gameContainer.appendChild(gameItem);
+
+            // Cria um novo item para o Objetivo
+            const goalItem = document.createElement('div');
+            goalItem.className = `flex-item ${isTargetItem ? 'target-item' : 'bg-item-target'}`; 
+            goalItem.textContent = i;
+            
+            // 3. Aplica os Estilos de Objetivo (A Solução)
+            // Lógica de Solução para o Contêiner de Objetivo (Apenas visual)
+            if (level.prop === 'flex-direction' && level.value === 'column') {
+                 goalContainer.style.flexDirection = 'column';
+                 goalContainer.style.justifyContent = 'flex-end'; // Necessário para o objetivo
+            } else if (level.prop === 'flex-wrap' && level.value === 'wrap') {
+                 goalContainer.style.flexWrap = 'wrap';
+            } else if (level.prop === 'align-content' && level.value === 'space-between') {
+                 goalContainer.style.flexWrap = 'wrap'; // Necessário para align-content funcionar
+                 goalContainer.style.alignContent = 'space-between';
+            } else if (isItemLevel) {
+                 // Níveis de Item: Aplica a propriedade no Item Alvo do Goal Container
+                 if (isTargetItem) {
+                    goalItem.style[level.prop] = level.value;
+                 }
+                 // Para Item Levels, precisamos garantir um align-items padrão no container para o item se mover.
+                 goalContainer.style.alignItems = 'flex-start';
+            } else {
+                // Aplica a propriedade principal no Goal Container
+                goalContainer.style[level.prop] = level.value;
+                goalContainer.style.flexDirection = 'row';
+                goalContainer.style.alignItems = (level.prop === 'align-items') ? level.value : 'stretch';
+            }
+            
+            goalContainer.appendChild(goalItem);
+        }
+    }
+
+    /**
+     * Aplica o CSS digitado pelo usuário e verifica a solução.
+     */
+    function applyAndCheck() {
+        const level = levels[currentLevel];
+        const userInput = cssInput.value.trim().toLowerCase();
+        const isItemLevel = level.targetType === 'item';
+
+        // 1. Aplica o CSS (Para feedback visual imediato)
+        try {
+            if (level.prop === 'flex-direction' && level.value === 'column') {
+                // Nível complexo: flex-direction + justify-content
+                const lines = userInput.split(';').map(line => line.trim()).filter(line => line.length > 0);
+                
+                let isDirectionCorrect = false;
+                let isJustifyCorrect = false;
+
+                lines.forEach(line => {
+                    if (line.includes('flex-direction')) {
+                        const value = line.split(':').pop().trim().replace(';', '');
+                        gameContainer.style.flexDirection = value;
+                        if (value === 'column') isDirectionCorrect = true;
+                    } else if (line.includes('justify-content')) {
+                        const value = line.split(':').pop().trim().replace(';', '');
+                        gameContainer.style.justifyContent = value;
+                        if (value === 'flex-end') isJustifyCorrect = true;
+                    }
+                });
+
+                if (isDirectionCorrect && isJustifyCorrect) {
+                    levelComplete();
+                } else {
+                    displayFeedback('Tente aplicar as duas propriedades separadas por ponto e vírgula, ambas com o valor correto para que o item atinja o alvo.', 'text-yellow-500');
+                }
+            
+            } else if (isItemLevel) {
+                // Níveis de Propriedades de Item (order, flex-grow, align-self)
+                const targetItem = gameContainer.children[level.targetItemIndex - 1];
+                const cleanValue = userInput.split(':').pop().trim().replace(';', '');
+                
+                // Precisa do nome da propriedade (ex: order) no input do usuário para o check ser mais robusto,
+                // mas vamos simplificar e apenas aplicar o valor.
+                targetItem.style[level.prop] = cleanValue;
+
+                if (targetItem.style[level.prop].toString() === level.value.toString()) {
+                     levelComplete();
+                } else {
+                     displayFeedback(`Ops! O valor '${userInput}' não está correto para ${level.prop} no Herói ${level.targetItemIndex}.`, 'text-red-500');
+                }
+
+            } else {
+                // Níveis de propriedade única do Contêiner (justify-content, align-items, flex-wrap, align-content)
+                const cleanValue = userInput.split(':').pop().trim().replace(';', '');
+                gameContainer.style[level.prop] = cleanValue;
+                
+                // 2. Verifica se o estilo aplicado é o correto
+                if (gameContainer.style[level.prop] === level.value) {
+                    levelComplete();
+                } else {
+                    displayFeedback(`Ops! O valor '${userInput}' não está correto para ${level.prop}. Tente novamente.`, 'text-red-500');
+                }
+            }
+
+
+        } catch (e) {
+            displayFeedback('Erro ao aplicar o CSS. Certifique-se de que o valor é válido!', 'text-red-500');
+            console.error(e);
+        }
+    }
+
+    /**
+     * Mostra mensagem de sucesso e avança para o próximo nível.
+     */
+    function levelComplete() {
+        displayFeedback('🎉 Sucesso! Masmorra Resolvida!', 'text-item-target');
+        gameContainer.classList.add('border-item-target');
+        
+        // Desabilita botões por um momento
+        applyButton.disabled = true;
+        resetButton.disabled = true;
+        homeButton.disabled = true; // Desabilita home
+
+        setTimeout(() => {
+            gameContainer.classList.remove('border-item-target');
+            applyButton.disabled = false;
+            resetButton.disabled = false;
+            homeButton.disabled = false; // Reabilita home
+            loadLevel(currentLevel + 1);
+        }, 1500);
+    }
+    
+    /**
+     * Mostra mensagem de vitória final.
+     */
+    function alertWin() {
+        feedbackText.innerHTML = '';
+        gameContainer.innerHTML = '<div class="flex items-center justify-center w-full h-full text-4xl text-item-target font-bold text-center p-8">PARABÉNS! VOCÊ DOMINOU O FLEXBOX E CONQUISTOU A DUNGEON!</div>';
+        goalContainer.innerHTML = '';
+        instructionText.innerHTML = 'Você completou todos os 14 desafios do Flexbox Dungeon. Você está pronto(a) para construir layouts profissionais de forma fluida e responsiva!';
+        levelDisplay.textContent = 'FINAL';
+        applyButton.disabled = true;
+        resetButton.disabled = true;
+        cssInput.disabled = true;
+        homeButton.disabled = false; // Permite voltar para o início mesmo no final.
+    }
+
+    /**
+     * Exibe feedback na tela.
+     * @param {string} message
+     * @param {string} colorClass
+     */
+    function displayFeedback(message, colorClass) {
+        feedbackText.textContent = message;
+        feedbackText.className = `mt-2 text-center text-lg font-semibold h-6 ${colorClass}`;
+    }
+
+    /**
+     * Reseta o estado do nível atual.
+     */
+    function resetLevel() {
+        loadLevel(currentLevel);
+    }
+    
+    /**
+     * Inicia o jogo, escondendo a tela inicial e mostrando a UI do jogo.
+     */
+    function initGame() {
+        splashScreen.classList.add('hidden');
+        gameUI.classList.remove('hidden');
+        loadLevel(currentLevel); // Continua do nível atual, ou começa do 0 se for a primeira vez
+    }
+
+    /**
+     * Volta para a tela inicial.
+     */
+    function goToSplashScreen() {
+        gameUI.classList.add('hidden');
+        splashScreen.classList.remove('hidden');
+    }
+
+
+    // Event Listeners
+    applyButton.addEventListener('click', applyAndCheck);
+    resetButton.addEventListener('click', resetLevel);
+    startButton.addEventListener('click', initGame); 
+    homeButton.addEventListener('click', goToSplashScreen); // Novo listener
+    
+    // Inicia o jogo (mostra a tela inicial)
+    // O jogo agora é iniciado pelo botão startButton
+    
+</script>
+
+</body>
+</html>
